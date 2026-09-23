@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny-ps" width="64" height="64" viewBox="0 0 64 64" zoomAndPan="disable" externalResourcesRequired="false">
+  <title>Storarri</title>
+  <rect width="64" height="64" fill="#f2ecda" />
+  <circle cx="32" cy="32" r="18" fill="none" stroke="#5b6236" stroke-width="4" />
+  <path d="M32 14v36M14 28h36" stroke="#5b6236" stroke-width="4" />
+</svg>

@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+
+      - name: Install dependencies
+        run: mise run install
+
+      - name: Check
+        run: mise run check
+
+      - name: End-to-end test
+        run: mise run test
+
+      - name: Build
+        run: mise run build

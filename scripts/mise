@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+if ! command -v mise >/dev/null 2>&1; then
+  curl https://mise.run | sh
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# Use the repository toolchain instead of tools configured by the host.
+global_config="${TMPDIR:-/tmp}/storarri-mise-global.toml"
+: > "$global_config"
+export MISE_GLOBAL_CONFIG_FILE="$global_config"
+
+exec mise "$@"

@@ -1,0 +1,66 @@
+[settings]
+lockfile = true
+
+[tools]
+bun = "1.4.2"
+
+[env]
+ASTRO_TELEMETRY_DISABLED = "1"
+
+[tasks.install]
+description = "Install project dependencies from the Bun lockfile"
+run = "bun install --frozen-lockfile"
+
+[tasks.dev]
+description = "Start the Astro development server"
+depends = ["install"]
+run = "bunx astro dev"
+
+[tasks.preview]
+description = "Serve the production Astro build locally"
+depends = ["install", "build"]
+run = "bunx astro preview"
+
+[tasks.check]
+description = "Check all code for format and coding rules"
+depends = ["install", "check:astro", "check:biome"]
+
+[tasks."check:astro"]
+description = "Run Astro validation"
+depends = ["install"]
+run = "bunx astro check"
+
+[tasks."check:biome"]
+description = "Run Biome formatting and lint checks for JavaScript and TypeScript"
+depends = ["install"]
+run = "bunx biome check"
+
+[tasks.format]
+description = "Format JavaScript and TypeScript with Biome"
+depends = ["install"]
+run = "bunx biome check --write"
+
+[tasks.test]
+description = "Run production end-to-end tests against Astro preview"
+depends = ["build"]
+run = "sh scripts/e2e"
+
+[tasks.build]
+description = "Build the production Astro site"
+depends = ["install"]
+run = "bunx astro build"
+
+[tasks.deploy]
+description = "Deploy the current build to Cloudflare production"
+depends = ["build"]
+run = "bunx wrangler deploy"
+
+[tasks."deploy:version"]
+description = "Upload a Cloudflare Worker version without promoting it"
+depends = ["build"]
+run = "bunx wrangler versions upload"
+
+[tasks."deploy:preview"]
+description = "Deploy an isolated Cloudflare branch preview"
+depends = ["build"]
+run = "bunx wrangler preview"

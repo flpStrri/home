@@ -1,0 +1,48 @@
+#!/bin/sh
+set -eu
+
+tmp_dir="${TMPDIR:-/tmp}"
+log_file="${tmp_dir%/}/storarri-preview.log"
+
+log() {
+  printf '[%s] %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$*" >>"$log_file"
+}
+
+printf 'Astro preview log: %s\n' "$log_file"
+: >"$log_file"
+log "Starting Astro preview on port 5321"
+
+cleanup() {
+  if [ -n "${server_pid:-}" ]; then
+    kill "$server_pid" 2>/dev/null || true
+  fi
+  bunx astro preview stop >/dev/null 2>&1 || true
+}
+
+trap cleanup EXIT INT TERM
+
+port=5321
+article_count="$(find src/content/articles -type f -name '*.md' -print | wc -l | tr -d '[:space:]')"
+
+bunx astro preview stop >/dev/null 2>&1 || true
+bunx astro preview --host 127.0.0.1 --port "$port" >>"$log_file" 2>&1 &
+server_pid=$!
+log "Astro preview process: $server_pid"
+
+for _ in $(seq 1 40); do
+  if curl --silent --fail "http://127.0.0.1:$port/" >/dev/null; then
+    log "Astro preview ready at http://127.0.0.1:$port"
+    if E2E_BASE_URL="http://127.0.0.1:$port" E2E_ARTICLE_COUNT="$article_count" bun test e2e; then
+      log "E2E tests passed"
+      exit 0
+    else
+      status=$?
+      log "E2E tests failed with status $status"
+      exit "$status"
+    fi
+  fi
+  sleep 0.15
+done
+
+cat "$log_file"
+exit 1
